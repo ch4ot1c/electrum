@@ -193,7 +193,7 @@ def init_daemon(config_options):
     storage = WalletStorage(config.get_wallet_path())
     if not storage.file_exists():
         print_msg("Error: Wallet file not found.")
-        print_msg("Type 'electrum create' to create a new wallet, or provide a path to a wallet with the -w option")
+        print_msg("Type 'electrum-btcp create' to create a new wallet, or provide a path to a wallet with the -w option")
         sys.exit(0)
     if storage.is_encrypted():
         if storage.is_encrypted_with_hw_device():
@@ -231,7 +231,7 @@ def init_cmdline(config_options, server):
 
     if cmd.requires_wallet and not storage.file_exists():
         print_msg("Error: Wallet file not found.")
-        print_msg("Type 'electrum create' to create a new wallet, or provide a path to a wallet with the -w option")
+        print_msg("Type 'electrum-btcp create' to create a new wallet, or provide a path to a wallet with the -w option")
         sys.exit(0)
 
     # important warning
@@ -405,7 +405,7 @@ if __name__ == '__main__':
     # check uri
     uri = config_options.get('url')
     if uri:
-        if not uri.startswith('bitcoin:'):
+        if not uri.startswith('bitcoinprivate:'):
             print_stderr('unknown command:', uri)
             sys.exit(1)
         config_options['url'] = uri
@@ -456,7 +456,7 @@ if __name__ == '__main__':
                     path = os.path.join(config.get('requests_dir'), 'index.html')
                     if not os.path.exists(path):
                         print("Requests directory not configured.")
-                        print("You can configure it using https://github.com/spesmilo/electrum-merchant")
+                        print("You can configure it using https://github.com/BTCPrivate/electrum-btcp-merchant")
                         sys.exit(1)
                 d.join()
                 sys.exit(0)
@@ -478,7 +478,7 @@ if __name__ == '__main__':
         else:
             cmd = known_commands[cmdname]
             if cmd.requires_network:
-                print_msg("Daemon not running; try 'electrum daemon start'")
+                print_msg("Daemon not running; try 'electrum-btcp daemon start'")
                 sys.exit(1)
             else:
                 plugins = init_plugins(config, 'cmdline')

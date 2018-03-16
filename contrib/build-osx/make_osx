@@ -17,11 +17,11 @@ cd $build_dir/../..
 export PYTHONHASHSEED=22
 VERSION=`git describe --tags`
 
-# Paramterize
+# Parameterize
 PYTHON_VERSION=3.6.4
-BUILDDIR=/tmp/electrum-build
-PACKAGE=Electrum
-GIT_REPO=https://github.com/spesmilo/electrum
+BUILDDIR=/tmp/electrum-btcp-build
+PACKAGE=Electrum-BTCP
+GIT_REPO=https://github.com/BTCPrivate/electrum-btcp
 
 
 info "Installing Python $PYTHON_VERSION"
@@ -56,8 +56,8 @@ for repo in icons locale; do
   git clone $GIT_REPO-$repo $BUILDDIR/electrum-$repo
 done
 
-cp -R $BUILDDIR/electrum-locale/locale/ ./lib/locale/
-cp    $BUILDDIR/electrum-icons/icons_rc.py ./gui/qt/
+cp -R $BUILDDIR/electrum-btcp-locale/locale/ ./lib/locale/
+cp    $BUILDDIR/electrum-btcp-icons/icons_rc.py ./gui/qt/
 
 
 info "Downloading libusb..."
@@ -88,4 +88,4 @@ info "Building binary"
 pyinstaller --noconfirm --ascii --name $VERSION contrib/build-osx/osx.spec || fail "Could not build binary"
 
 info "Creating .DMG"
-hdiutil create -fs HFS+ -volname $PACKAGE -srcfolder dist/$PACKAGE.app dist/electrum-$VERSION.dmg || fail "Could not create .DMG"
+hdiutil create -fs HFS+ -volname $PACKAGE -srcfolder dist/$PACKAGE.app dist/electrum-btcp-$VERSION.dmg || fail "Could not create .DMG"

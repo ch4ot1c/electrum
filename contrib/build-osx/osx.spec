@@ -5,9 +5,9 @@ from PyInstaller.utils.hooks import collect_data_files, collect_submodules, coll
 import sys
 import os
 
-PACKAGE='Electrum'
+PACKAGE='Electrum-BTCP'
 PYPKG='electrum'
-MAIN_SCRIPT='electrum'
+MAIN_SCRIPT='electrum-btcp'
 ICONS_FILE='electrum.icns'
 
 for i, x in enumerate(sys.argv):
