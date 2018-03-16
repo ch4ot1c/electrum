@@ -40,12 +40,15 @@ from . import segwit_addr
 from . import constants
 
 
-################################## transactions
+# -- Transactions --
 
+CHUNK_SIZE = 200
+
+# constants
 COINBASE_MATURITY = 100
 COIN = 100000000
 
-# supported types of transction outputs
+# supported types of transaction outputs
 TYPE_ADDRESS = 0
 TYPE_PUBKEY  = 1
 TYPE_SCRIPT  = 2

@@ -28,9 +28,13 @@ from . import bitcoin
 from . import constants
 from .bitcoin import *
 
+import base64
+from .equihash import is_gbp_valid
+
+
 MAX_TARGET = 0x07FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 
-# n_solution is 1344 bytes compactSize
+# n_solution is 1344 bytes
 def serialize_header(res):
     s = int_to_hex(res.get('version'), 4) \
         + rev_hex(res.get('prev_block_hash')) \
@@ -38,8 +42,8 @@ def serialize_header(res):
         + rev_hex(res.get('hash_reserved')) \
         + int_to_hex(int(res.get('timestamp')), 4) \
         + int_to_hex(int(res.get('bits')), 4) \
-        + rev_hex(res.get('nonce'), 4)
-        + int_to_hex(base64.b64decode(res.get('n_solution').encode('utf8')))
+        + rev_hex(res.get('nonce')) \
+        + base64.b64decode(res.get('n_solution').encode('utf8')).hex()
     return s
 
 def deserialize_header(s, height):
@@ -52,7 +56,7 @@ def deserialize_header(s, height):
     h['timestamp'] = hex_to_int(s[100:104])
     h['bits'] = hex_to_int(s[104:108])
     h['nonce'] = hash_encode(s[108:140])
-    h['n_solution'] = base64.b64encode(bytes(hex_to_int(s[140:]))).decode('utf8')
+    h['n_solution'] = base64.b64encode(bytes(deser_char_vector(s[140:]))).decode('utf8')
     h['block_height'] = height
     return h
 
