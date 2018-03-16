@@ -1,24 +1,7 @@
-Electrum - Lightweight Bitcoin client
-=====================================
+Electrum-BTCP - Lightweight Bitcoin client
+==========================================
 
-::
-
-  Licence: MIT Licence
-  Author: Thomas Voegtlin
-  Language: Python
-  Homepage: https://electrum.org/
-
-
-.. image:: https://travis-ci.org/spesmilo/electrum.svg?branch=master
-    :target: https://travis-ci.org/spesmilo/electrum
-    :alt: Build Status
-.. image:: https://coveralls.io/repos/github/spesmilo/electrum/badge.svg?branch=master
-    :target: https://coveralls.io/github/spesmilo/electrum?branch=master
-    :alt: Test coverage statistics
-.. image:: https://img.shields.io/badge/help-translating-blue.svg
-    :target: https://crowdin.com/project/electrum
-    :alt: Help translating Electrum online
-
+Latest Release: https://github.com/BTCPrivate/electrum-btcp/releases
 
 
 
@@ -26,28 +9,28 @@ Electrum - Lightweight Bitcoin client
 Getting started
 ===============
 
-Electrum is a pure python application. If you want to use the
+Electrum-BTCP is a pure python application. If you want to use the
 Qt interface, install the Qt dependencies::
 
     sudo apt-get install python3-pyqt5
 
 If you downloaded the official package (tar.gz), you can run
-Electrum from its root directory, without installing it on your
+Electrum-BTCP from its root directory, without installing it on your
 system; all the python dependencies are included in the 'packages'
-directory. To run Electrum from its root directory, just do::
+directory. To run Electrum-BTCP from its root directory, just do::
 
-    ./electrum
+    ./electrum-btcp
 
-You can also install Electrum on your system, by running this command::
+You can also install Electrum-BTCP on your system, by running this command::
 
     sudo apt-get install python3-setuptools
     python3 setup.py install
 
 This will download and install the Python dependencies used by
-Electrum, instead of using the 'packages' directory.
+Electrum-BTCP, instead of using the 'packages' directory.
 
 If you cloned the git repository, you need to compile extra files
-before you can run Electrum. Read the next section, "Development
+before you can run Electrum-BTCP. Read the next section, "Development
 Version".
 
 
@@ -57,7 +40,7 @@ Development version
 
 Check out the code from Github::
 
-    git clone git://github.com/spesmilo/electrum.git
+    git clone git://github.com/BTCPrivate/electrum-btcp
     cd electrum
 
 Run install (this should install dependencies)::
@@ -107,3 +90,27 @@ Android
 -------
 
 See `gui/kivy/Readme.txt` file.
+
+
+::
+
+  Made by the Bitcoin Private developers.
+
+  Original Source: Electrum (for Bitcoin)
+  Licence: MIT Licence
+  Author: Thomas Voegtlin
+  Language: Python
+  Homepage: https://electrum.org/
+
+
+.. image:: https://travis-ci.org/spesmilo/electrum.svg?branch=master
+    :target: https://travis-ci.org/spesmilo/electrum
+    :alt: Build Status
+.. image:: https://coveralls.io/repos/github/spesmilo/electrum/badge.svg?branch=master
+    :target: https://coveralls.io/github/spesmilo/electrum?branch=master
+    :alt: Test coverage statistics
+.. image:: https://img.shields.io/badge/help-translating-blue.svg
+    :target: https://crowdin.com/project/electrum
+    :alt: Help translating Electrum online
+
+

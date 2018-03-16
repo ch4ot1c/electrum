@@ -18,7 +18,7 @@ with open('contrib/requirements/requirements-hw.txt') as f:
 version = imp.load_source('version', 'lib/version.py')
 
 if sys.version_info[:3] < (3, 4, 0):
-    sys.exit("Error: Electrum requires Python version >= 3.4.0...")
+    sys.exit("Error: Electrum-BTCP requires Python version >= 3.4.0...")
 
 data_files = []
 
@@ -39,7 +39,7 @@ if platform.system() in ['Linux', 'FreeBSD', 'DragonFly']:
     ]
 
 setup(
-    name="Electrum",
+    name="Electrum-BTCP",
     version=version.ELECTRUM_VERSION,
     install_requires=requirements,
     packages=[
@@ -77,7 +77,7 @@ setup(
             'locale/*/LC_MESSAGES/electrum.mo',
         ]
     },
-    scripts=['electrum'],
+    scripts=['electrum-btcp'],
     data_files=data_files,
     description="Lightweight Bitcoin Private Wallet",
     author="Bitcoin Private",
