@@ -34,9 +34,11 @@ def serialize_header(res):
     s = int_to_hex(res.get('version'), 4) \
         + rev_hex(res.get('prev_block_hash')) \
         + rev_hex(res.get('merkle_root')) \
+        + rev_hex(res.get('hash_reserved')) \
         + int_to_hex(int(res.get('timestamp')), 4) \
         + int_to_hex(int(res.get('bits')), 4) \
-        + int_to_hex(int(res.get('nonce')), 4)
+        + rev_hex(res.get('nonce'), 4)
+        + int_to_hex(base64.b64decode(res.get('n_solution').encode('utf8')))
     return s
 
 def deserialize_header(s, height):
@@ -45,9 +47,11 @@ def deserialize_header(s, height):
     h['version'] = hex_to_int(s[0:4])
     h['prev_block_hash'] = hash_encode(s[4:36])
     h['merkle_root'] = hash_encode(s[36:68])
-    h['timestamp'] = hex_to_int(s[68:72])
-    h['bits'] = hex_to_int(s[72:76])
-    h['nonce'] = hex_to_int(s[76:80])
+    h['hash_reserved'] = hash_encode(s[68:100])
+    h['timestamp'] = hex_to_int(s[100:104])
+    h['bits'] = hex_to_int(s[104:108])
+    h['nonce'] = hash_encode(s[108:140])
+    h['n_solution'] = base64.b64encode(bytes(hex_to_int(s[140:]))).decode('utf8')
     h['block_height'] = height
     return h
 
@@ -55,7 +59,7 @@ def hash_header(header):
     if header is None:
         return '0' * 64
     if header.get('prev_block_hash') is None:
-        header['prev_block_hash'] = '00'*32
+        header['prev_block_hash'] = '00'*32 #TODO 32? 64?
     return hash_encode(Hash(bfh(serialize_header(header))))
 
 
@@ -147,7 +151,7 @@ class Blockchain(util.PrintError):
 
     def update_size(self):
         p = self.path()
-        self._size = os.path.getsize(p)//80 if os.path.exists(p) else 0
+        self._size = os.path.getsize(p)//bitcoin.HEADER_SIZE if os.path.exists(p) else 0
 
     def verify_header(self, header, prev_hash, target):
         _hash = hash_header(header)
@@ -160,14 +164,19 @@ class Blockchain(util.PrintError):
             raise BaseException("bits mismatch: %s vs %s" % (bits, header.get('bits')))
         if int('0x' + _hash, 16) > target:
             raise BaseException("insufficient proof of work: %s vs target %s" % (int('0x' + _hash, 16), target))
+        nonce = uint256_from_bytes(rev_hex(header.get('nonce')))
+        n_solution = vector_from_bytes(base64.b64decode(header.get('n_solution').encode('utf8')))
+        if not is_gbp_valid(serialize_header(header), nonce, n_solution,
+            constants.net.EQUIHASH_N, constants.net.EQUIHASH_K):
+            raise BaseException("Equihash invalid")
 
     def verify_chunk(self, index, data):
-        num = len(data) // 80
-        prev_hash = self.get_hash(index * 2016 - 1)
+        num = len(data) // bitcoin.HEADER_SIZE 
+        prev_hash = self.get_hash(index * bitcoin.CHUNK_SIZE - 1)
         target = self.get_target(index-1)
         for i in range(num):
-            raw_header = data[i*80:(i+1) * 80]
-            header = deserialize_header(raw_header, index*2016 + i)
+            raw_header = data[i*bitcoin.HEADER_SIZE:(i+1) * bitcoin.HEADER_SIZE]
+            header = deserialize_header(raw_header, index*bitcoin.CHUNK_SIZE + i)
             self.verify_header(header, prev_hash, target)
             prev_hash = hash_header(header)
 
