@@ -37,17 +37,24 @@ def read_json(filename, default):
     return r
 
 
+# Bitcoin Private Mainnet
 class BitcoinMainnet:
 
     TESTNET = False
     WIF_PREFIX = 0x80
-    ADDRTYPE_P2PKH = 0
-    ADDRTYPE_P2SH = 5
-    SEGWIT_HRP = "bc"
-    GENESIS = "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"
+    ADDRTYPE_P2PKH = [0x13, 0x25]
+    ADDRTYPE_P2SH = [0x13, 0xAF]
+    ADDRTYPE_SHIELDED = [0x16, 0xA8]
+    SEGWIT_HRP = "bc" #TODO BTCP does not completely support SegWit
+    GENESIS = "0007104ccda289427919efc39dc9e4d499804b7bebc22df55f8b834301260602"
     DEFAULT_PORTS = {'t': '50001', 's': '50002'}
     DEFAULT_SERVERS = read_json('servers.json', {})
     CHECKPOINTS = read_json('checkpoints.json', [])
+
+    EQUIHASH_N = 200
+    EQUIHASH_K = 9
+
+    HEADERS_URL = "http://headers.btcprivate.org/blockchain_headers"
 
     XPRV_HEADERS = {
         'standard':    0x0488ade4,  # xprv
@@ -65,17 +72,24 @@ class BitcoinMainnet:
     }
 
 
+# Bitcoin Private Testnet
 class BitcoinTestnet:
 
     TESTNET = True
     WIF_PREFIX = 0xef
-    ADDRTYPE_P2PKH = 111
-    ADDRTYPE_P2SH = 196
+    ADDRTYPE_P2PKH = [0x19, 0x58]
+    ADDRTYPE_P2SH = [0x19, 0xE0]
+    ADDRTYPE_SHIELDED = [0x16, 0xC0]
     SEGWIT_HRP = "tb"
-    GENESIS = "000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943"
+    GENESIS = "03e1c4bb705c871bf9bfda3e74b7f8f86bff267993c215a89d5795e3708e5e1f"
     DEFAULT_PORTS = {'t': '51001', 's': '51002'}
     DEFAULT_SERVERS = read_json('servers_testnet.json', {})
     CHECKPOINTS = read_json('checkpoints_testnet.json', [])
+
+    EQUIHASH_N = 200
+    EQUIHASH_K = 9
+
+    HEADERS_URL = "http://headers.testnet.btcprivate.org/blockchain_headers"
 
     XPRV_HEADERS = {
         'standard':    0x04358394,  # tprv

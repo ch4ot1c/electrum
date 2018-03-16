@@ -79,12 +79,12 @@ setup(
     },
     scripts=['electrum'],
     data_files=data_files,
-    description="Lightweight Bitcoin Wallet",
-    author="Thomas Voegtlin",
-    author_email="thomasv@electrum.org",
+    description="Lightweight Bitcoin Private Wallet",
+    author="Bitcoin Private",
+    author_email="support@btcprivate.org",
     license="MIT Licence",
-    url="https://electrum.org",
-    long_description="""Lightweight Bitcoin Wallet"""
+    url="https://btcprivate.org",
+    long_description="""Lightweight Bitcoin Private Wallet"""
 )
 
 # Optional modules (not required to run Electrum)

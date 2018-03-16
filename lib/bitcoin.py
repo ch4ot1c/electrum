@@ -545,6 +545,7 @@ def is_b58_address(addr):
         addrtype, h = b58_address_to_hash160(addr)
     except Exception as e:
         return False
+    #TODO if addrtype == constants.net.ADDRTYPE_SHIELDED
     if addrtype not in [constants.net.ADDRTYPE_P2PKH, constants.net.ADDRTYPE_P2SH]:
         return False
     return addr == hash160_to_b58_address(h, addrtype)
@@ -584,7 +585,7 @@ from ecdsa.util import string_to_number, number_to_string
 
 def msg_magic(message):
     length = bfh(var_int(len(message)))
-    return b"\x18Bitcoin Signed Message:\n" + length + message
+    return b"\x18BitcoinPrivate Signed Message:\n" + length + message
 
 
 def verify_message(address, sig, message):
