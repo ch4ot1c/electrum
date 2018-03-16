@@ -86,9 +86,9 @@ echo "done"
 
 wine 'wineboot'
 
-mkdir -p /tmp/electrum-build
+mkdir -p /tmp/electrum-btcp-build
 
-cd /tmp/electrum-build
+cd /tmp/electrum-btcp-build
 
 # Install Python
 # note: you might need "sudo apt-get install dirmngr" for the following

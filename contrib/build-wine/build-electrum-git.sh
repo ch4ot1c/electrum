@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NAME_ROOT=electrum
+NAME_ROOT=electrum-btcp
 PYTHON_VERSION=3.5.4
 
 # These settings probably don't need any change
@@ -19,19 +19,19 @@ set -e
 mkdir -p tmp
 cd tmp
 
-for repo in electrum electrum-locale electrum-icons; do
+for repo in electrum-btcp electrum-btcp-locale electrum-btcp-icons; do
     if [ -d $repo ]; then
 	cd $repo
 	git pull
 	git checkout master
 	cd ..
     else
-	URL=https://github.com/spesmilo/$repo.git
+	URL=https://github.com/BTCPrivate/$repo.git #TODO Clone or reuse the others
 	git clone -b master $URL $repo
     fi
 done
 
-pushd electrum-locale
+pushd electrum-btcp-locale
 for i in ./locale/*; do
     dir=$i/LC_MESSAGES
     mkdir -p $dir
@@ -39,7 +39,7 @@ for i in ./locale/*; do
 done
 popd
 
-pushd electrum
+pushd electrum-btcp
 if [ ! -z "$1" ]; then
     git checkout $1
 fi
@@ -49,18 +49,18 @@ echo "Last commit: $VERSION"
 find -exec touch -d '2000-11-11T11:11:11+00:00' {} +
 popd
 
-rm -rf $WINEPREFIX/drive_c/electrum
-cp -r electrum $WINEPREFIX/drive_c/electrum
-cp electrum/LICENCE .
-cp -r electrum-locale/locale $WINEPREFIX/drive_c/electrum/lib/
-cp electrum-icons/icons_rc.py $WINEPREFIX/drive_c/electrum/gui/qt/
+rm -rf $WINEPREFIX/drive_c/electrum-btcp
+cp -r electrum-btcp $WINEPREFIX/drive_c/electrum-btcp
+cp electrum-btcp/LICENCE .
+cp -r electrum-btcp-locale/locale $WINEPREFIX/drive_c/electrum-btcp/lib/
+cp electrum-btcp-icons/icons_rc.py $WINEPREFIX/drive_c/electrum-btcp/gui/qt/
 
 # Install frozen dependencies
 $PYTHON -m pip install -r ../../deterministic-build/requirements.txt
 
 $PYTHON -m pip install -r ../../deterministic-build/requirements-hw.txt
 
-pushd $WINEPREFIX/drive_c/electrum
+pushd $WINEPREFIX/drive_c/electrum-btcp
 $PYTHON setup.py install
 popd
 
@@ -81,8 +81,8 @@ popd
 wine "$WINEPREFIX/drive_c/Program Files (x86)/NSIS/makensis.exe" /DPRODUCT_VERSION=$VERSION electrum.nsi
 
 cd dist
-mv electrum-setup.exe $NAME_ROOT-$VERSION-setup.exe
+mv electrum-btcp-setup.exe $NAME_ROOT-$VERSION-setup.exe
 cd ..
 
 echo "Done."
-md5sum dist/electrum*exe
+md5sum dist/electrum-btcp*exe

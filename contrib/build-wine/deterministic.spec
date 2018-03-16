@@ -11,7 +11,7 @@ else:
     raise BaseException('no name')
 
 
-home = 'C:\\electrum\\'
+home = 'C:\\electrum-btcp\\'
 
 # see https://github.com/pyinstaller/pyinstaller/issues/2005
 hiddenimports = []
@@ -130,4 +130,4 @@ coll = COLLECT(
     debug=False,
     icon=home+'icons/electrum.ico',
     console=False,
-    name=os.path.join('dist', 'electrum'))
+    name=os.path.join('dist', 'electrum-btcp'))
