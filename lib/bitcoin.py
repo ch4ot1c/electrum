@@ -31,6 +31,7 @@ import json
 
 import ecdsa
 import pyaes
+import struct
 
 from .util import bfh, bh2u, to_string
 from . import version
@@ -192,6 +193,85 @@ hash_encode = lambda x: bh2u(x[::-1])
 hash_decode = lambda x: bfh(x)[::-1]
 hmac_sha_512 = lambda x, y: hmac.new(x, y, hashlib.sha512).digest()
 
+# -- Zcash Utils --
+# https://github.com/zcash/zcash/blob/master/qa/rpc-tests/test_framework/mininode.py
+
+HEADER_SIZE = 1487
+
+hash_to_str = lambda x: bytes(reversed(x)).hex()
+str_to_hash = lambda x: bytes(reversed(bytes.fromhex(x)))
+
+def read_vector_size(f):
+    nit = struct.unpack("<B", f.read(1))[0]
+    if nit == 253:
+        return struct.unpack("<H", f.read(2))[0]
+    elif nit == 254:
+        return struct.unpack("<I", f.read(4))[0]
+    elif nit == 255:
+        return struct.unpack("<Q", f.read(8))[0]
+    return nit
+
+def ser_char_vector(l):
+    if l is None:
+        l = b''
+    if len(l) < 253:
+        r = struct.pack("<B", len(l))
+    elif len(l) < 0x10000:
+        r = struct.pack("<B", 253) + struct.pack("<H", len(l))
+    elif len(l) < 0x100000000:
+        r = struct.pack("<B", 254) + struct.pack("<I", len(l))
+    else:
+        r = struct.pack("<B", 255) + struct.pack("<Q", len(l))
+    r += bytes(l)
+    return r
+
+
+def deser_char_vector(f):
+    nit = struct.unpack("<B", f.read(1))[0]
+    if nit == 253:
+        nit = struct.unpack("<H", f.read(2))[0]
+    elif nit == 254:
+        nit = struct.unpack("<I", f.read(4))[0]
+    elif nit == 255:
+        nit = struct.unpack("<Q", f.read(8))[0]
+    r = []
+    for i in range(nit):
+        t = struct.unpack("<B", f.read(1))[0]
+        r.append(t)
+    return r
+
+def vector_from_bytes(s):
+    return [v for v in s]
+
+
+def deser_uint256(f):
+    r = 0
+    for i in range(8):
+        t = struct.unpack("<I", f.read(4))[0]
+        r += t << (i * 32)
+    return r
+
+
+def uint256_from_bytes(s):
+    r = 0
+    t = struct.unpack("<IIIIIIII", s[:32])
+    for i in range(8):
+        r += t[i] << (i * 32)
+    return r
+
+
+def ser_uint256(u):
+    if isinstance(u, str):
+        u = int(u, 16)
+    if u is None:
+        u = 0
+    rs = b''
+    for i in range(8):
+        rs += struct.pack("<I", u & 0xFFFFFFFF)
+        u >>= 32
+    return rs
+
+# -- End Zcash Utils --
 
 def is_new_seed(x, prefix=version.SEED_PREFIX):
     from . import mnemonic
