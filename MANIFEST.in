@@ -3,7 +3,7 @@ include README.rst
 include electrum.conf.sample
 include electrum.desktop
 include *.py
-include electrum
+include electrum-btcp
 include contrib/requirements/requirements.txt
 include contrib/requirements/requirements-hw.txt
 recursive-include lib *.py

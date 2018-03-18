@@ -5,7 +5,6 @@ Latest Release: https://github.com/BTCPrivate/electrum-btcp/releases
 
 
 
-
 Getting started
 ===============
 

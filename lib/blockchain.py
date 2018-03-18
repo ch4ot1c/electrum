@@ -56,7 +56,7 @@ def deserialize_header(s, height):
     h['timestamp'] = hex_to_int(s[100:104])
     h['bits'] = hex_to_int(s[104:108])
     h['nonce'] = hash_encode(s[108:140])
-    h['n_solution'] = base64.b64encode(bytes(deser_char_vector(s[140:]))).decode('utf8')
+    h['n_solution'] = base64.b64encode(bytes(s[140:])).decode('utf8')
     h['block_height'] = height
     return h
 

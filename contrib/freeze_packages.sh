@@ -16,7 +16,7 @@ for i in '' '-hw' '-binaries'; do
 
     python -m pip install -r $contrib/requirements/requirements${i}.txt --upgrade
 
-    pip freeze | sed '/^Electrum/ d' > $contrib/deterministic-build/requirements${i}.txt
+    pip freeze | sed '/^Electrum-BTCP/ d' > $contrib/deterministic-build/requirements${i}.txt
 done
 
 echo "Done. Updated requirements"
