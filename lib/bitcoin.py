@@ -33,7 +33,7 @@ import ecdsa
 import pyaes
 import struct
 
-from .util import bfh, bh2u, to_string
+from .util import bfh, bh2u, to_string, BitcoinException
 from . import version
 from .util import print_error, InvalidPassword, assert_bytes, to_bytes, inv_dict
 from . import segwit_addr
@@ -370,14 +370,14 @@ def hash160_to_p2sh(h160):
 def public_key_to_p2pkh(public_key):
     return hash160_to_p2pkh(hash_160(public_key))
 
-def hash_to_segwit_addr(h):
-    return segwit_addr.encode(constants.net.SEGWIT_HRP, 0, h)
+def hash_to_segwit_addr(h, witver):
+    return segwit_addr.encode(constants.net.SEGWIT_HRP, witver, h)
 
 def public_key_to_p2wpkh(public_key):
-    return hash_to_segwit_addr(hash_160(public_key))
+    return hash_to_segwit_addr(hash_160(public_key), witver=0)
 
 def script_to_p2wsh(script):
-    return hash_to_segwit_addr(sha256(bfh(script)))
+    return hash_to_segwit_addr(sha256(bfh(script)), witver=0)
 
 def p2wpkh_nested_script(pubkey):
     pkh = bh2u(hash_160(bfh(pubkey)))
@@ -391,7 +391,7 @@ def pubkey_to_address(txin_type, pubkey):
     if txin_type == 'p2pkh':
         return public_key_to_p2pkh(bfh(pubkey))
     elif txin_type == 'p2wpkh':
-        return hash_to_segwit_addr(hash_160(bfh(pubkey)))
+        return public_key_to_p2wpkh(bfh(pubkey))
     elif txin_type == 'p2wpkh-p2sh':
         scriptSig = p2wpkh_nested_script(pubkey)
         return hash160_to_p2sh(hash_160(bfh(scriptSig)))
@@ -434,7 +434,7 @@ def address_to_script(addr):
         script += push_script(bh2u(hash_160))
         script += '87'                                       # op_equal
     else:
-        raise BaseException('unknown address type')
+        raise BitcoinException('unknown address type: {}'.format(addrtype))
     return script
 
 def address_to_scripthash(addr):
@@ -578,7 +578,8 @@ def deserialize_privkey(key):
         vch = DecodeBase58Check(key)
     except BaseException:
         neutered_privkey = str(key)[:3] + '..' + str(key)[-2:]
-        raise BaseException("cannot deserialize", neutered_privkey)
+        raise BitcoinException("cannot deserialize privkey {}"
+                               .format(neutered_privkey))
 
     if txin_type is None:
         # keys exported in version 3.0.x encoded script type in first byte
@@ -974,7 +975,8 @@ def deserialize_xkey(xkey, prv, *, net=None):
         net = constants.net
     xkey = DecodeBase58Check(xkey)
     if len(xkey) != 78:
-        raise BaseException('Invalid length')
+        raise BitcoinException('Invalid length for extended key: {}'
+                               .format(len(xkey)))
     depth = xkey[4]
     fingerprint = xkey[5:9]
     child_number = xkey[9:13]
@@ -982,7 +984,8 @@ def deserialize_xkey(xkey, prv, *, net=None):
     header = int('0x' + bh2u(xkey[0:4]), 16)
     headers = net.XPRV_HEADERS if prv else net.XPUB_HEADERS
     if header not in headers.values():
-        raise BaseException('Invalid xpub format', hex(header))
+        raise BitcoinException('Invalid extended key format: {}'
+                               .format(hex(header)))
     xtype = list(headers.keys())[list(headers.values()).index(header)]
     n = 33 if prv else 32
     K_or_k = xkey[13+n:]

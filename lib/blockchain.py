@@ -269,6 +269,10 @@ class Blockchain(util.PrintError):
             with open(name, 'rb') as f:
                 f.seek(delta * bitcoin.HEADER_SIZE)
                 h = f.read(bitcoin.HEADER_SIZE)
+        elif not os.path.exists(util.get_headers_dir(self.config)):
+            raise Exception('Electrum-BTCP datadir does not exist. Was it deleted while running?')
+        else:
+            raise Exception('Cannot find headers file but datadir is there. Should be at {}'.format(name))
         if h == bytes([0])*bitcoin.HEADER_SIZE:
             return None
         return deserialize_header(h, height)
