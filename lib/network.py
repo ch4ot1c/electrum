@@ -968,7 +968,9 @@ class Network(util.DaemonThread):
     def init_headers_file(self):
         b = self.blockchains[0]
         filename = b.path()
-        length = 80 * len(constants.net.CHECKPOINTS) * 2016
+        # From a saved file:
+        '''
+        length = bitcoin.HEADER_SIZE * len(constants.net.CHECKPOINTS) * bitcoin.CHUNK_SIZE
         if not os.path.exists(filename) or os.path.getsize(filename) < length:
             with open(filename, 'wb') as f:
                 if length>0:
@@ -976,9 +978,33 @@ class Network(util.DaemonThread):
                     f.write(b'\x00')
         with b.lock:
             b.update_size()
+        '''
+        # From network:
+        def download_thread():
+            try:
+                import urllib, socket
+                socket.setdefaulttimeout(30)
+                self.print_error("Downloading Headers - ", constants.net.HEADERS_URL)
+                urllib.request.urlretrieve(constants.net.HEADERS_URL, filename)
+                self.print_error("Done.")
+            except Exception:
+                import traceback
+                traceback.print_exc()
+                self.print_error("Download failed. Creating file", filename)
+                open(filename, 'wb+').close()
+            b = self.blockchains[0]
+            with b.lock: b.update_size()
+            self.downloading_headers = False
+
+        self.downloading_headers = True
+        t = threading.Thread(target = download_thread)
+        t.daemon = True
+        t.start()
 
     def run(self):
         self.init_headers_file()
+        while self.is_running() and self.downloading_headers:
+            time.sleep(1)
         while self.is_running():
             self.maintain_sockets()
             self.wait_on_sockets()
