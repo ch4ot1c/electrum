@@ -174,7 +174,7 @@ class Network(util.DaemonThread):
         if self.blockchain_index not in self.blockchains.keys():
             self.blockchain_index = 0
         # Server for addresses and transactions
-        self.default_server = self.config.get('server', None)
+        self.default_server = self.config.get('server', '35.229.76.18:5222:t')
         # Sanitize default server
         if self.default_server:
             try:
@@ -926,7 +926,7 @@ class Network(util.DaemonThread):
         # If not finished, get the next header
         if next_height:
             if interface.mode == 'catch_up' and interface.tip > next_height + 50:
-                self.request_chunk(interface, next_height // 2016)
+                self.request_chunk(interface, next_height // bitcoin.CHUNK_SIZE)
             else:
                 self.request_header(interface, next_height)
         else:
@@ -1119,4 +1119,4 @@ class Network(util.DaemonThread):
             f.write(json.dumps(cp, indent=4))
 
     def max_checkpoint(self):
-        return max(0, len(constants.net.CHECKPOINTS) * 2016 - 1)
+        return max(0, len(constants.net.CHECKPOINTS) * bitcoin.CHUNK_SIZE - 1)

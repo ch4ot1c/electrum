@@ -65,7 +65,7 @@ def hash_header(header):
         return '0' * 64
     if header.get('prev_block_hash') is None:
         header['prev_block_hash'] = '00'*32
-    return hash_encode(Hash(bfh(serialize_header(header))))
+    return hash_encode(Hash(serialize_header(header)))
 
 
 blockchains = {}
@@ -324,6 +324,7 @@ class Blockchain(util.PrintError):
           return bitsBase << (8 * (bitsN-3))
 
     def target_to_bits(self, target):
+        print(target)
         c = ("%064x" % target)[2:]
         while c[:2] == '00' and len(c) > 6:
             c = c[2:]
