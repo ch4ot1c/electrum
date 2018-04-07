@@ -147,7 +147,8 @@ def rev_hex(s):
 
 
 def int_to_hex(i, length=1):
-    assert isinstance(i, int)
+    if not isinstance(i, int):
+        raise TypeError('{} instead of int'.format(i))
     if i < 0:
         # two's complement
         i = pow(256, length) + i
@@ -427,7 +428,8 @@ def address_to_script(addr, *, net=None):
         net = constants.net
     witver, witprog = segwit_addr.decode(net.SEGWIT_HRP, addr)
     if witprog is not None:
-        assert (0 <= witver <= 16)
+        if not (0 <= witver <= 16):
+            raise BitcoinException('impossible witness version: {}'.format(witver))
         OP_n = witver + 0x50 if witver > 0 else 0
         script = bh2u(bytes([OP_n]))
         script += push_script(bh2u(bytes(witprog)))
@@ -468,7 +470,8 @@ assert len(__b43chars) == 43
 def base_encode(v, base):
     """ encode v, which is a string of bytes, to base58."""
     assert_bytes(v)
-    assert base in (58, 43)
+    if base not in (58, 43):
+        raise ValueError('not supported base: {}'.format(base))
     chars = __b58chars
     if base == 43:
         chars = __b43chars
@@ -498,7 +501,8 @@ def base_decode(v, length, base):
     """ decode v into a string of len bytes."""
     # assert_bytes(v)
     v = to_bytes(v, 'ascii')
-    assert base in (58, 43)
+    if base not in (58, 43):
+        raise ValueError('not supported base: {}'.format(base))
     chars = __b58chars
     if base == 43:
         chars = __b43chars
@@ -550,6 +554,7 @@ def DecodeBase58Check(psz):
 
 # backwards compat
 # extended WIF for segwit (used in 3.0.x; but still used internally)
+# the keys in this dict should be a superset of what Imported Wallets can import
 SCRIPT_TYPES = {
     'p2pkh':0,
     'p2wpkh':1,
@@ -581,7 +586,8 @@ def deserialize_privkey(key):
     txin_type = None
     if ':' in key:
         txin_type, key = key.split(sep=':', maxsplit=1)
-        assert txin_type in SCRIPT_TYPES
+        if txin_type not in SCRIPT_TYPES:
+            raise BitcoinException('unknown script type: {}'.format(txin_type))
     try:
         vch = DecodeBase58Check(key)
     except BaseException:
@@ -593,9 +599,12 @@ def deserialize_privkey(key):
         # keys exported in version 3.0.x encoded script type in first byte
         txin_type = inv_dict(SCRIPT_TYPES)[vch[0] - constants.net.WIF_PREFIX]
     else:
-        assert vch[0] == constants.net.WIF_PREFIX
+        # all other keys must have a fixed first byte
+        if vch[0] != constants.net.WIF_PREFIX:
+            raise BitcoinException('invalid prefix ({}) for WIF key'.format(vch[0]))
 
-    assert len(vch) in [33, 34]
+    if len(vch) not in [33, 34]:
+        raise BitcoinException('invalid vch len for WIF key: {}'.format(len(vch)))
     compressed = len(vch) == 34
     return txin_type, vch[1:33], compressed
 
@@ -1048,7 +1057,8 @@ def xpub_from_pubkey(xtype, cK):
 
 
 def bip32_derivation(s):
-    assert s.startswith('m/')
+    if not s.startswith('m/'):
+        raise ValueError('invalid bip32 derivation path: {}'.format(s))
     s = s[2:]
     for n in s.split('/'):
         if n == '': continue
@@ -1063,7 +1073,9 @@ def is_bip32_derivation(x):
         return False
 
 def bip32_private_derivation(xprv, branch, sequence):
-    assert sequence.startswith(branch)
+    if not sequence.startswith(branch):
+        raise ValueError('incompatible branch ({}) and sequence ({})'
+                         .format(branch, sequence))
     if branch == sequence:
         return xprv, xpub_from_xprv(xprv)
     xtype, depth, fingerprint, child_number, c, k = deserialize_xprv(xprv)
@@ -1085,7 +1097,9 @@ def bip32_private_derivation(xprv, branch, sequence):
 
 def bip32_public_derivation(xpub, branch, sequence):
     xtype, depth, fingerprint, child_number, c, cK = deserialize_xpub(xpub)
-    assert sequence.startswith(branch)
+    if not sequence.startswith(branch):
+        raise ValueError('incompatible branch ({}) and sequence ({})'
+                         .format(branch, sequence))
     sequence = sequence[len(branch):]
     for n in sequence.split('/'):
         if n == '': continue

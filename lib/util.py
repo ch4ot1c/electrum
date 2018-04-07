@@ -418,7 +418,7 @@ def format_satoshis(x, is_diff=False, num_zeros = 0, decimal_point = 8, whitespa
         return 'unknown'
     x = int(x)  # Some callers pass Decimal
     scale_factor = pow (10, decimal_point)
-    integer_part = "{:n}".format(int(abs(x) / scale_factor))
+    integer_part = "{:d}".format(int(abs(x) / scale_factor))
     if x < 0:
         integer_part = '-' + integer_part
     elif is_diff:
@@ -541,12 +541,12 @@ def parse_URI(uri, on_pr=None):
 
     if ':' not in uri:
         if not bitcoin.is_address(uri):
-            raise BaseException("Not a Bitcoin Private address")
+            raise Exception("Not a Bitcoin Private address")
         return {'address': uri}
 
     u = urllib.parse.urlparse(uri)
     if u.scheme != 'bitcoinprivate':
-        raise BaseException("Not a Bitcoin Private URI")
+        raise Exception("Not a Bitcoin Private URI")
     address = u.path
 
     # python for android fails to parse query
@@ -563,7 +563,7 @@ def parse_URI(uri, on_pr=None):
     out = {k: v[0] for k, v in pq.items()}
     if address:
         if not bitcoin.is_address(address):
-            raise BaseException("Invalid Bitcoin Private address:" + address)
+            raise Exception("Invalid Bitcoin Private address:" + address)
         out['address'] = address
     if 'amount' in out:
         am = out['amount']
@@ -712,10 +712,6 @@ class SocketPipe:
                 print_error("SSLError:", e)
                 time.sleep(0.1)
                 continue
-            except OSError as e:
-                print_error("OSError", e)
-                time.sleep(0.1)
-                continue
 
 
 class QueuePipe:
@@ -786,7 +782,7 @@ def versiontuple(v):
 
 def import_meta(path, validater, load_meta):
     try:
-        with open(path, 'r') as f:
+        with open(path, 'r', encoding='utf-8') as f:
             d = validater(json.loads(f.read()))
         load_meta(d)
     #backwards compatibility for JSONDecodeError
@@ -800,7 +796,7 @@ def import_meta(path, validater, load_meta):
 
 def export_meta(meta, fileName):
     try:
-        with open(fileName, 'w+') as f:
+        with open(fileName, 'w+', encoding='utf-8') as f:
             json.dump(meta, f, indent=4, sort_keys=True)
     except (IOError, os.error) as e:
         traceback.print_exc(file=sys.stderr)
